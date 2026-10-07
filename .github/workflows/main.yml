@@ -16,6 +16,8 @@ jobs:
         with: {distribution: temurin, java-version: 17}
       - run: npm install
       - run: npx cap add android
+      - name: Generar iconos
+        run: npx --yes @capacitor/assets generate --android
       - run: npx cap sync android
       - name: Forzar nombre de la app
         run: sed -i 's|<string name="app_name">.*</string>|<string name="app_name">AMI Flow</string>|; s|<string name="title_activity_main">.*</string>|<string name="title_activity_main">AMI Flow</string>|' android/app/src/main/res/values/strings.xml
