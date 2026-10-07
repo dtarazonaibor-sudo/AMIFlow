@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,8 +17,18 @@ jobs:
       - run: npm install
       - run: npx cap add android
       - run: npx cap sync android
+      - name: Forzar nombre de la app
+        run: sed -i 's|<string name="app_name">.*</string>|<string name="app_name">AMI Flow</string>|; s|<string name="title_activity_main">.*</string>|<string name="title_activity_main">AMI Flow</string>|' android/app/src/main/res/values/strings.xml
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+      - name: Renombrar APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk AMIFlow.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: contactos-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: AMI-Flow-apk
+          path: AMIFlow.apk
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: AMI Flow
+          files: AMIFlow.apk
