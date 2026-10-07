@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clientes y Contactos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Contactos"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1f6f5c">
+<style>
+:root{--bg:#f5f3ee;--card:#fff;--ink:#1a2b3f;--mut:#6b7684;--ac:#1f6f5c;--ac2:#e7f2ee;--line:#dfdcd3;--red:#b3392f;--amb:#a8700f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a24;--card:#1b2633;--ink:#e8edf2;--mut:#93a1b1;--ac:#4fc3a1;--ac2:#1d3a36;--line:#2c3a4a;--red:#ff8a7e;--amb:#e8b04a}}
+:root[data-theme="dark"]{--bg:#121a24;--card:#1b2633;--ink:#e8edf2;--mut:#93a1b1;--ac:#4fc3a1;--ac2:#1d3a36;--line:#2c3a4a;--red:#ff8a7e;--amb:#e8b04a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{max-width:640px;margin:0 auto;padding:16px 14px 150px}
+h1{font:700 22px Georgia,serif;margin:4px 0 12px}h2{font:700 16px Georgia,serif;margin:18px 0 8px}h3{margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.it{display:flex;gap:10px;align-items:center;justify-content:space-between;cursor:pointer}
+.s{color:var(--mut);font-size:13px}.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--ac2);color:var(--ac);margin:2px 4px 0 0}
+.late{color:var(--red);font-weight:600}.today{color:var(--amb);font-weight:600}
+button,select,input,textarea{font:inherit;color:inherit}
+button{touch-action:manipulation;min-height:38px;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:7px 12px;cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.d{color:var(--red)}
+button.chip.on{background:var(--ac);color:#fff}
+input,select,textarea{font-size:16px;width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--bg);margin-top:3px}
+label{display:block;margin-bottom:9px;font-size:13px;color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.grow{flex:1!important}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}.kpi div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.kpi b{display:block;font-size:24px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;max-width:110px;border:0;border-radius:0;background:none;padding:10px 2px;font-size:12px;color:var(--mut)}nav button.on{color:var(--ac);font-weight:700}
+.fab{position:fixed;right:16px;bottom:calc(66px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:50%;font-size:28px;padding:0;z-index:6;box-shadow:0 3px 10px #0003}
+#m{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:90%;overflow:auto;border-radius:16px 16px 0 0;padding:16px}
+</style></head><body>
+<div id="app"></div><div id="m"></div>
+<button class="p fab" onclick="addNew()" aria-label="Añadir">+</button>
+<nav id="nav"></nav>
+<script>
+const ESTC=['Activo','Inactivo','Ocasional','VIP'],ESTN=['Nuevo','En conversación','Formación','En equipo','No interesado'];
+const TIPOS=['cliente','prospecto de negocio','ambos'],CANAL=['WhatsApp','Llamada','Instagram','Presencial','Email','Otro'];
+const TT=['Llamar','WhatsApp','Enviar información','Invitar a evento','Reunión','Recordatorio'],PRI=['Alta','Media','Baja'];
+const NIV=['Alto','Medio','Bajo'],CAT=['Nutrición','Skincare','Hogar','Otro'];
+let S={c:[],h:[],t:[],p:[],b:[]},V={v:'home',id:null,q:'',ft:'',fe:'',qf:''};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem('crm')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('crm',JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const nowL=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+const fd=s=>s?new Date(s).toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:s.length>10?'2-digit':undefined,minute:s.length>10?'2-digit':undefined}):'';
+const cn=id=>(S.c.find(x=>x.id==id)||{nombre:'(eliminado)'}).nombre;
+const pend=()=>S.t.filter(t=>t.estado!='Realizada').sort((a,b)=>a.when>b.when?1:-1);
+const isLate=t=>t.estado!='Realizada'&&t.when<nowL();
+const isToday=t=>t.when.slice(0,10)==nowL().slice(0,10);
+const next=id=>pend().find(t=>t.cid==id&&t.estado!='Pospuesta')||pend().find(t=>t.cid==id);
+const go=(v,id)=>{V.v=v;V.id=id||null;render();scrollTo(0,0)};
+
+function form(title,fields,init,cb){
+ const m=document.getElementById('m');init=init||{};
+ m.innerHTML=`<div class="sheet"><h3>${title}</h3>${fields.map(f=>{const v=init[f.k]??f.d??'';
+  const inp=f.t=='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option ${o==v?'selected':''}>${esc(o)}</option>`).join('')}</select>`:
+  f.t=='textarea'?`<textarea rows="3" id="f_${f.k}">${esc(v)}</textarea>`:`<input type="${f.t||'text'}" id="f_${f.k}" value="${esc(v)}">`;
+  return`<label>${f.l}${inp}</label>`}).join('')}<div class="row"><button class="grow" onclick="closeM()">Cancelar</button><button class="p grow" id="ok">Guardar</button></div></div>`;
+ m.style.display='flex';
+ document.getElementById('ok').onclick=()=>{const o={...init};fields.forEach(f=>o[f.k]=document.getElementById('f_'+f.k).value);
+  if(fields[0].req&&!o[fields[0].k].trim())return toast('Falta: '+fields[0].l);closeM();cb(o)};
+}
+const closeM=()=>{document.getElementById('m').style.display='none'};
+function toast(t){const d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:130px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;z-index:30;font-size:14px';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+function ask(msg,yes,no){const m=document.getElementById('m');m.innerHTML=`<div class="sheet"><h3>${msg}</h3><div class="row"><button class="grow" id="n">No</button><button class="p grow" id="y">Sí</button></div></div>`;m.style.display='flex';document.getElementById('y').onclick=()=>{closeM();yes()};document.getElementById('n').onclick=()=>{closeM();no&&no()}}
+function menu(){const m=document.getElementById('m');m.innerHTML=`<div class="sheet"><h3>¿Qué quieres añadir?</h3><div class="row"><button class="p grow" id="a">Nuevo contacto</button><button class="grow" id="b">Nueva acción</button></div><div class="row" style="margin-top:8px"><button class="grow" id="c">Cancelar</button></div></div>`;m.style.display='flex';document.getElementById('a').onclick=()=>{closeM();editC()};document.getElementById('b').onclick=()=>{closeM();selT()};document.getElementById('c').onclick=closeM}
+
+const FC=[{k:'nombre',l:'Nombre y apellidos',req:1},{k:'tel',l:'Teléfono / WhatsApp',t:'tel'},{k:'email',l:'Email',t:'email'},{k:'red',l:'Red social'},{k:'como',l:'Cómo lo conocí'},{k:'fecha',l:'Fecha de primer contacto',t:'date',d:nowL().slice(0,10)},
+ {k:'tipo',l:'Tipo',t:'select',o:TIPOS},{k:'estado',l:'Estado',t:'select',o:[...ESTC,...ESTN]},{k:'etiquetas',l:'Etiquetas (separadas por coma)'},{k:'notas',l:'Notas',t:'textarea'}];
+function editC(id){const c=S.c.find(x=>x.id==id);form(c?'Editar contacto':'Nuevo contacto',FC,c||{tipo:'cliente',estado:'Activo'},o=>{if(!o.id){o.id=uid();S.c.push(o)}save();go('contact',o.id)})}
+function bizC(id){const c=S.c.find(x=>x.id==id);form('Negocio',[{k:'parte',l:'Qué parte del negocio se ha explicado'},{k:'nivel',l:'Nivel de interés',t:'select',o:NIV},{k:'paso',l:'Próximo paso'}],c,o=>{save();render()})}
+function addH(cid){form('Registrar conversación',[{k:'fecha',l:'Fecha y hora',t:'datetime-local',d:nowL()},{k:'canal',l:'Canal',t:'select',o:CANAL},{k:'conte',l:'Qué le conté',t:'textarea'},{k:'recibio',l:'Información / productos que recibió'},{k:'interes',l:'Qué le interesó'},{k:'dudas',l:'Dudas / objeciones'},{k:'docs',l:'Documentos enviados'}],{},o=>{o.id=uid();o.cid=cid;S.h.push(o);save();
+ ask('¿Programar el siguiente seguimiento?',()=>addT(cid),render)})}
+function addT(cid,t0){form(t0?'Editar seguimiento':'Próxima acción',[{k:'cid',l:'Contacto',t:'select',o:S.c.map(c=>c.id+' · '+c.nombre),d:cid?cid+' · '+cn(cid):''},{k:'tipo',l:'Tipo',t:'select',o:TT},{k:'when',l:'Fecha y hora',t:'datetime-local',d:nowL()},{k:'prio',l:'Prioridad',t:'select',o:PRI,d:'Media'},{k:'desc',l:'Descripción'}],t0?{...t0,cid:t0.cid+' · '+cn(t0.cid)}:{},o=>{o.cid=o.cid.split(' · ')[0];o.estado=o.estado||'Pendiente';if(!o.id){o.id=uid();S.t.push(o)}save();render()})}
+function selT(){if(!S.c.length){toast('Primero crea un contacto');return editC()}addT()}
+function doneT(id){const t=S.t.find(x=>x.id==id);t.estado='Realizada';save();ask('Hecho ✓ ¿Crear el siguiente seguimiento?',()=>addT(t.cid),render)}
+function postT(id){const t=S.t.find(x=>x.id==id);form('Posponer',[{k:'when',l:'Nueva fecha y hora',t:'datetime-local'}],{when:t.when},o=>{t.when=o.when;t.estado='Pospuesta';save();render()})}
+function addP(cid){if(!S.p.length){toast('Añade primero productos en la pestaña Productos');return};form('Producto',[{k:'prod',l:'Producto',t:'select',o:S.p.map(p=>p.nombre)},{k:'tipo',l:'Tipo',t:'select',o:['Recomendado','Comprado']},{k:'fecha',l:'Fecha',t:'date',d:nowL().slice(0,10)},{k:'cant',l:'Cantidad',t:'number',d:1},{k:'pref',l:'Preferencias'},{k:'rev',l:'Próxima revisión',t:'date'}],{},o=>{o.id=uid();o.cid=cid;S.b.push(o);save();render()})}
+function editProd(id){const p=S.p.find(x=>x.id==id);form(p?'Editar producto':'Nuevo producto',[{k:'nombre',l:'Nombre',req:1},{k:'cat',l:'Categoría',t:'select',o:CAT},{k:'desc',l:'Descripción breve'},{k:'precio',l:'Precio (opcional)',t:'number'}],p,o=>{if(!o.id){o.id=uid();S.p.push(o)}save();render()})}
+function del(k,id,back){ask('¿Eliminar?',()=>{S[k]=S[k].filter(x=>x.id!=id);if(k=='c'){['h','t','b'].forEach(z=>S[z]=S[z].filter(x=>x.cid!=id))}save();back?go(back):render()})}
+function addNew(){({home:menu,contacts:()=>editC(),contact:()=>V.id&&addH(V.id),cal:selT,prods:()=>editProd(),stats:menu})[V.v]()}
+
+const taskRow=(t,name)=>`<div class="card"><div class="row"><div class="grow" onclick="go('contact','${t.cid}')" style="cursor:pointer"><b>${esc(t.tipo)}</b>${name?' · '+esc(cn(t.cid)):''}<div class="s ${isLate(t)?'late':isToday(t)?'today':''}">${fd(t.when)}${isLate(t)?' · atrasada':''} · ${t.prio}${t.estado=='Pospuesta'?' · pospuesta':''}</div>${t.desc?`<div class="s">${esc(t.desc)}</div>`:''}</div>${t.estado!='Realizada'?`<button class="p" onclick="doneT('${t.id}')">✓</button><button onclick="postT('${t.id}')">⏰</button>`:'<span class="s">Hecha</span>'}</div></div>`;
+const empty=m=>`<div class="s" style="padding:14px 4px">${m}</div>`;
+
+function vHome(){const p=pend(),lt=p.filter(isLate),td=p.filter(t=>!isLate(t)&&isToday(t)),up=p.filter(t=>!isLate(t)&&!isToday(t)).slice(0,8);
+ return`<h1>Inicio</h1><div class="kpi"><div><b class="${lt.length?'late':''}">${lt.length}</b><span class="s">Atrasadas</span></div><div><b>${td.length}</b><span class="s">Hoy</span></div><div><b>${S.c.length}</b><span class="s">Contactos</span></div></div>
+ ${lt.length?'<h2>Atrasadas</h2>'+lt.map(t=>taskRow(t,1)).join(''):''}<h2>Hoy</h2>${td.map(t=>taskRow(t,1)).join('')||empty('Nada pendiente para hoy.')}<h2>Próximas acciones</h2>${up.map(t=>taskRow(t,1)).join('')||empty('Sin acciones programadas. Pulsa + para crear una.')}`}
+
+function vContacts(){let L=S.c.filter(c=>{const q=V.q.toLowerCase();
+  if(q&&!(c.nombre+' '+c.tel+' '+c.red+' '+c.etiquetas).toLowerCase().includes(q))return 0;
+  if(V.ft&&c.tipo!=V.ft)return 0;if(V.fe&&c.estado!=V.fe)return 0;
+  const n=next(c.id);if(V.qf=='hoy'&&!(n&&(isToday(n)||isLate(n))))return 0;if(V.qf=='late'&&!(n&&isLate(n)))return 0;return 1}).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+ return`<h1>Contactos</h1><input id="q" placeholder="Buscar por nombre, teléfono o red social" value="${esc(V.q)}" oninput="V.q=this.value;rl()">
+ <div class="row" style="margin:8px 0"><select class="grow" onchange="V.ft=this.value;render()"><option value="">Todos los tipos</option>${TIPOS.map(o=>`<option ${V.ft==o?'selected':''}>${o}</option>`)}</select><select class="grow" onchange="V.fe=this.value;render()"><option value="">Todos los estados</option>${[...ESTC,...ESTN].map(o=>`<option ${V.fe==o?'selected':''}>${o}</option>`)}</select></div>
+ <div class="row" style="margin-bottom:10px"><button class="chip ${V.qf=='hoy'?'on':''}" onclick="V.qf=V.qf=='hoy'?'':'hoy';render()">Contactar hoy</button><button class="chip ${V.qf=='late'?'on':''}" onclick="V.qf=V.qf=='late'?'':'late';render()">Seguimientos atrasados</button></div>
+ <div id="list">${cl(L)}</div>`}
+const cl=L=>L.map(c=>{const n=next(c.id);return`<div class="card it" onclick="go('contact','${c.id}')"><div><b>${esc(c.nombre)}</b><div class="s">${esc(c.tipo)} · ${esc(c.estado)}</div>${n?`<div class="s ${isLate(n)?'late':isToday(n)?'today':''}">${esc(n.tipo)} · ${fd(n.when)}</div>`:''}</div><span>›</span></div>`}).join('')||empty('No hay contactos con estos filtros. Pulsa + para añadir uno.');
+function rl(){const i=document.getElementById('q'),p=i.selectionStart;render();const j=document.getElementById('q');j.focus();j.setSelectionRange(p,p)}
+
+function vContact(){const c=S.c.find(x=>x.id==V.id);if(!c)return go('contacts'),'';
+ const wa=(c.tel||'').replace(/\D/g,''),H=S.h.filter(x=>x.cid==c.id).sort((a,b)=>a.fecha<b.fecha?1:-1),T=S.t.filter(x=>x.cid==c.id).sort((a,b)=>a.when>b.when?1:-1),B=S.b.filter(x=>x.cid==c.id);
+ const biz=c.tipo!='cliente';
+ return`<button onclick="go('contacts')">‹ Contactos</button><h1 style="margin-top:10px">${esc(c.nombre)}</h1>
+ <div class="card"><span class="tag">${esc(c.tipo)}</span><span class="tag">${esc(c.estado)}</span>${(c.etiquetas||'').split(',').filter(x=>x.trim()).map(e=>`<span class="tag">#${esc(e.trim())}</span>`).join('')}
+ <div class="s" style="margin-top:6px">${[c.tel,c.email,c.red].filter(Boolean).map(esc).join(' · ')}</div><div class="s">${c.como?'Lo conocí: '+esc(c.como)+' · ':''}Primer contacto: ${esc(c.fecha||'—')}</div>${c.notas?`<p>${esc(c.notas)}</p>`:''}
+ <div class="row">${wa?`<a href="https://wa.me/${wa}" target="_blank"><button class="p">WhatsApp</button></a><a href="tel:${esc(c.tel)}"><button>Llamar</button></a>`:''}<button onclick="editC('${c.id}')">Editar</button><button class="d" onclick="del('c','${c.id}','contacts')">Borrar</button></div></div>
+ <h2>Qué toca <button onclick="addT('${c.id}')" style="float:right">+ Seguimiento</button></h2>${T.map(t=>taskRow(t)).join('')||empty('Sin seguimientos. Programa el siguiente paso.')}
+ <h2>Historial de conversaciones <button onclick="addH('${c.id}')" style="float:right">+ Registrar</button></h2>
+ ${H.map(h=>`<div class="card"><div class="row"><b class="grow">${esc(h.canal)}</b><span class="s">${fd(h.fecha)}</span><button class="d" onclick="del('h','${h.id}')">×</button></div>${[['Le conté',h.conte],['Recibió',h.recibio],['Le interesó',h.interes],['Dudas',h.dudas],['Documentos',h.docs]].filter(x=>x[1]).map(x=>`<div class="s"><b>${x[0]}:</b> ${esc(x[1])}</div>`).join('')}</div>`).join('')||empty('Aún no hay conversaciones registradas.')}
+ <h2>Productos y compras <button onclick="addP('${c.id}')" style="float:right">+ Producto</button></h2>
+ ${B.map(b=>`<div class="card"><div class="row"><b class="grow">${esc(b.prod)} ×${esc(b.cant)}</b><span class="tag">${b.tipo}</span><button class="d" onclick="del('b','${b.id}')">×</button></div><div class="s">${esc(b.fecha)}${b.pref?' · '+esc(b.pref):''}${b.rev?' · Revisar: '+esc(b.rev):''}</div></div>`).join('')||empty('Sin productos recomendados ni comprados.')}
+ ${biz?`<h2>Contacto de negocio <button onclick="bizC('${c.id}')" style="float:right">Editar</button></h2><div class="card"><div class="s">Explicado: ${esc(c.parte||'—')}</div><div class="s">Interés: ${esc(c.nivel||'—')} · Próximo paso: ${esc(c.paso||'—')}</div></div>`:''}`}
+
+function vCal(){const g={};pend().forEach(t=>(g[t.when.slice(0,10)]=g[t.when.slice(0,10)]||[]).push(t));
+ return`<h1>Calendario</h1>`+(Object.keys(g).sort().map(d=>`<h2>${fd(d)}</h2>${g[d].map(t=>taskRow(t,1)).join('')}`).join('')||empty('No hay acciones pendientes. Pulsa + para programar una.'))}
+function vProds(){return`<h1>Productos</h1>`+(S.p.map(p=>`<div class="card it" onclick="editProd('${p.id}')"><div><b>${esc(p.nombre)}</b><div class="s">${esc(p.cat)}${p.desc?' · '+esc(p.desc):''}</div></div><div class="row"><b>${p.precio?esc(p.precio)+' €':''}</b><button class="d" onclick="event.stopPropagation();del('p','${p.id}')">×</button></div></div>`).join('')||empty('Tu catálogo está vacío. Pulsa + para añadir el primer producto.'))}
+function vStats(){const cnt=(a,f)=>{const o={};a.forEach(x=>{const k=f(x);if(k)o[k]=(o[k]||0)+1});return o};
+ const mo=nowL().slice(0,7),row=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><span class="grow">${esc(k)}</span><b>${v}</b></div>`).join('')||'<div class="s">Sin datos</div>';
+ const comp=S.b.filter(b=>b.tipo=='Comprado');
+ return`<h1>Estadísticas</h1><div class="kpi"><div><b>${comp.filter(b=>b.fecha.startsWith(mo)).reduce((a,b)=>a+ +b.cant,0)}</b><span class="s">Uds. este mes</span></div><div><b>${S.h.filter(h=>h.fecha.startsWith(mo)).length}</b><span class="s">Conversaciones</span></div><div><b>${S.t.filter(t=>t.estado=='Realizada').length}</b><span class="s">Hechas</span></div></div>
+ <h2>Contactos por estado</h2><div class="card">${row(cnt(S.c,c=>c.estado))}</div><h2>Contactos por tipo</h2><div class="card">${row(cnt(S.c,c=>c.tipo))}</div>
+ <h2>Productos más vendidos</h2><div class="card">${row(comp.reduce((o,b)=>(o[b.prod]=(o[b.prod]||0)+ +b.cant,o),{}))}</div>
+ <h2>Copia de seguridad</h2><div class="row"><button onclick="expo()">Exportar datos</button><button onclick="impo()">Importar</button></div>`}
+function expo(){form('Copia de seguridad (copia este texto)',[{k:'d',l:'Datos',t:'textarea',d:JSON.stringify(S)}],{},()=>{})}
+function impo(){form('Pegar copia de seguridad',[{k:'d',l:'Datos',t:'textarea'}],{},o=>{try{S=Object.assign({c:[],h:[],t:[],p:[],b:[]},JSON.parse(o.d));save();render()}catch(e){toast('Los datos no son válidos')}})}
+
+const NAV=[['home','Inicio'],['contacts','Contactos'],['cal','Calendario'],['prods','Productos'],['stats','Estadísticas']];
+function render(){const f={home:vHome,contacts:vContacts,contact:vContact,cal:vCal,prods:vProds,stats:vStats};
+ document.getElementById('app').innerHTML=f[V.v]();
+ document.getElementById('nav').innerHTML=NAV.map(n=>`<button class="${V.v==n[0]||(V.v=='contact'&&n[0]=='contacts')?'on':''}" onclick="go('${n[0]}')">${n[1]}</button>`).join('')}
+render();
+</script></body></html>

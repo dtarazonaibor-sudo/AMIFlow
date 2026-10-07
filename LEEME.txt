@@ -1,0 +1,15 @@
+CÓMO OBTENER EL APK (sin instalar nada en el ordenador)
+
+1. Crea una cuenta gratis en github.com.
+2. Pulsa "New repository", ponle un nombre (ej. contactos) y créalo.
+3. Pulsa "uploading an existing file" y arrastra TODO el contenido de esta carpeta
+   (incluida la carpeta oculta .github y la carpeta www). Pulsa "Commit changes".
+   Si no te deja subir la carpeta oculta, crea el archivo a mano: Add file > Create new file,
+   nombre ".github/workflows/apk.yml" y pega su contenido.
+4. Ve a la pestaña "Actions". Espera 5-10 minutos a que termine (check verde).
+   Si no arranca solo: Actions > "Construir APK" > Run workflow.
+5. Entra en esa ejecución, baja hasta "Artifacts" y descarga "contactos-apk" (un zip con app-debug.apk).
+6. Pasa el .apk al móvil Android y ábrelo. Permite "instalar apps de orígenes desconocidos" si lo pide.
+
+Para cambiar la app: edita www/index.html y vuelve a subirlo; se genera un APK nuevo.
+Los datos se guardan en el propio móvil (no se sincronizan).
