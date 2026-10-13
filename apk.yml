@@ -1,0 +1,22 @@
+name: Construir APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm install
+      - run: npx expo install react react-native expo-status-bar react-native-safe-area-context @react-native-async-storage/async-storage @react-native-community/datetimepicker expo-clipboard firebase
+      - run: npx expo prebuild --platform android --no-install
+      - run: cd android && chmod +x gradlew && ./gradlew assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ami-flow-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
