@@ -3,34 +3,20 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
-permissions:
-  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: 20}
+        with: { node-version: 22 }
       - uses: actions/setup-java@v4
-        with: {distribution: temurin, java-version: 17}
+        with: { distribution: temurin, java-version: 17 }
       - run: npm install
-      - run: npx cap add android
-      - name: Generar iconos
-        run: npx --yes @capacitor/assets generate --android
-      - run: npx cap sync android
-      - name: Forzar nombre de la app
-        run: sed -i 's|<string name="app_name">.*</string>|<string name="app_name">AMI Flow</string>|; s|<string name="title_activity_main">.*</string>|<string name="title_activity_main">AMI Flow</string>|' android/app/src/main/res/values/strings.xml
-      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
-      - name: Renombrar APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk AMIFlow.apk
+      - run: npx expo install react react-native expo-status-bar react-native-safe-area-context @react-native-async-storage/async-storage @react-native-community/datetimepicker expo-clipboard firebase
+      - run: npx expo prebuild --platform android --no-install
+      - run: cd android && chmod +x gradlew && ./gradlew assembleRelease
       - uses: actions/upload-artifact@v4
         with:
-          name: AMI-Flow-apk
-          path: AMIFlow.apk
-      - name: Publicar release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest
-          name: AMI Flow
-          files: AMIFlow.apk
+          name: ami-flow-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
