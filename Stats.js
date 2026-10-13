@@ -1,9 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useStore } from '../store';
-import { Txt, Card, Row } from '../ui';
-import { nowL } from '../utils';
-import { Sec } from '../parts';
+import { useStore } from './store';
+import { Txt, Card, Row } from './ui';
+import { nowL } from './utils';
+import { Sec } from './parts';
 
 export default function Stats() {
   const { S } = useStore();

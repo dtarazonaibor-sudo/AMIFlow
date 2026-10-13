@@ -1,10 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useStore } from '../store';
-import { useT } from '../theme';
-import { Txt, Btn, Card, Row, Inp, Select, useNav } from '../ui';
-import { ESTC, ESTN, TIPOS, fd, isLate, isToday, nextT } from '../utils';
-import { Empty } from '../parts';
+import { useStore } from './store';
+import { useT } from './theme';
+import { Txt, Btn, Card, Row, Inp, Select, useNav } from './ui';
+import { ESTC, ESTN, TIPOS, fd, isLate, isToday, nextT } from './utils';
+import { Empty } from './parts';
 
 export default function Contacts() {
   const { S } = useStore();

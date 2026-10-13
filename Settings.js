@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Pressable, Share } from 'react-native';
-import { useStore, authMsg, body } from '../store';
-import { useT, ACCENTS, FONTS, SIZES, MODES } from '../theme';
-import { Txt, Btn, Card, Row, Inp, useUI } from '../ui';
-import { Sec } from '../parts';
+import { useStore, authMsg, body } from './store';
+import { useT, ACCENTS, FONTS, SIZES, MODES } from './theme';
+import { Txt, Btn, Card, Row, Inp, useUI } from './ui';
+import { Sec } from './parts';
 
 const SYNC = {
   local: 'Solo en este móvil',

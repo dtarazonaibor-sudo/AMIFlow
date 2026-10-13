@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Linking } from 'react-native';
-import { useStore } from '../store';
-import { Txt, Btn, Card, Row, Tag, useNav } from '../ui';
-import { useActions } from '../actions';
-import { fd } from '../utils';
-import { TaskRow, Empty, Sec } from '../parts';
+import { useStore } from './store';
+import { Txt, Btn, Card, Row, Tag, useNav } from './ui';
+import { useActions } from './actions';
+import { fd } from './utils';
+import { TaskRow, Empty, Sec } from './parts';
 
 export default function Contact() {
   const { S } = useStore();

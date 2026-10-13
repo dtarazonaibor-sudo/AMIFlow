@@ -5,12 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/icon-only.png",
+    "icon": "./icon-only.png",
     "android": {
       "package": "com.anaibor.amiflow",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-foreground.png",
-        "backgroundImage": "./assets/icon-background.png"
+        "foregroundImage": "./icon-foreground.png",
+        "backgroundImage": "./icon-background.png"
       }
     },
     "ios": { "bundleIdentifier": "com.anaibor.amiflow" }

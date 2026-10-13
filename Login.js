@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Image, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useStore, authMsg } from '../store';
-import { useT } from '../theme';
-import { Txt, Btn, Inp, Row } from '../ui';
+import { useStore, authMsg } from './store';
+import { useT } from './theme';
+import { Txt, Btn, Inp, Row } from './ui';
 
 export default function Login() {
   const t = useT();
@@ -25,7 +25,7 @@ export default function Login() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 22, paddingTop: ins.top + 22, paddingBottom: ins.bottom + 22, maxWidth: 480, width: '100%', alignSelf: 'center' }}>
         <View style={{ alignItems: 'center', marginBottom: 18 }}>
           <View style={{ width: 110, height: 110, borderRadius: 26, overflow: 'hidden', backgroundColor: '#fff', borderWidth: 1, borderColor: t.line }}>
-            <Image source={require('../../assets/icon-only.png')} style={{ width: 110, height: 110 }} resizeMode="cover" />
+            <Image source={require('./icon-only.png')} style={{ width: 110, height: 110 }} resizeMode="cover" />
           </View>
           <Txt v="h1" style={{ marginTop: 14 }}>AMI Flow</Txt>
           <Txt v="s" style={{ textAlign: 'center', marginTop: 4 }}>Entra con tu correo y tus datos se guardan solos en la nube, en cualquier móvil.</Txt>

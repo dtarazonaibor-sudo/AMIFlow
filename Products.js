@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
-import { useStore } from '../store';
-import { useT } from '../theme';
-import { Txt, Btn, Card, Row, Tag, Inp, useNav } from '../ui';
-import { useActions } from '../actions';
-import { Empty } from '../parts';
+import { useStore } from './store';
+import { useT } from './theme';
+import { Txt, Btn, Card, Row, Tag, Inp, useNav } from './ui';
+import { useActions } from './actions';
+import { Empty } from './parts';
 
 export default function Products() {
   const { S } = useStore();

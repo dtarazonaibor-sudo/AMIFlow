@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Pressable, ScrollView, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { useStore } from '../store';
-import { useT } from '../theme';
-import { Txt, Btn, Card, Row, Tag, Inp, useNav, useUI } from '../ui';
-import { useActions } from '../actions';
-import { GCAT } from '../utils';
-import { Empty } from '../parts';
+import { useStore } from './store';
+import { useT } from './theme';
+import { Txt, Btn, Card, Row, Tag, Inp, useNav, useUI } from './ui';
+import { useActions } from './actions';
+import { GCAT } from './utils';
+import { Empty } from './parts';
 
 export default function Scripts() {
   const { S } = useStore();

@@ -1,10 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useStore } from '../store';
-import { useT } from '../theme';
-import { Txt, Card, Row, useNav } from '../ui';
-import { pend, isLate, isToday } from '../utils';
-import { TaskRow, Empty, Sec } from '../parts';
+import { useStore } from './store';
+import { useT } from './theme';
+import { Txt, Card, Row, useNav } from './ui';
+import { pend, isLate, isToday } from './utils';
+import { TaskRow, Empty, Sec } from './parts';
 
 export default function Home() {
   const { S, user } = useStore();
